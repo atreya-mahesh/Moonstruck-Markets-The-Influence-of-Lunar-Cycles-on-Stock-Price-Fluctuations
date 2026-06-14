@@ -1,6 +1,9 @@
+#Install pymc
 !pip install pymc==4.1.4
 import pymc as pm
 pm.__version__
+
+#Import numpy, panda and import your data set 
 import numpy as np
 import pandas as pd
 from google.colab import files
@@ -13,6 +16,7 @@ import matplotlib.pyplot as plt
 import arviz as az
 data['Index'] = pd.Categorical(data['Index'])
 
+# Fixed effects for Lunar Cycle and Interest Rate, individual-specific effects (Index) and Model Equation
 with pm.Model() as model_panel:
     beta_lunar = pm.Normal('beta_lunar', mu=0, sigma=10)
     beta_pinterest = pm.Normal('beta_pinterest', mu=0, sigma=10)
@@ -20,9 +24,10 @@ with pm.Model() as model_panel:
     beta_balance = pm.Normal('beta_balance', mu=0, sigma=10)
     alpha_index = pm.Normal('alpha_index', mu=0, sigma=10, shape=len(data['Index'].unique()))
     mu = alpha_index[data['Index'].cat.codes] + beta_lunar * data['X1'] + beta_sinterest * data['Secondary Rate'] + beta_pinterest * data['Primary Rate'] + beta_balance * data['Balance at NRB - CRR']
-    # Likelihood
-    sigma = pm.HalfNormal('sigma', sigma=1)
-    y_obs = pm.Normal('y_obs', mu=mu, sigma=sigma, observed=data['Close_Price'])
+
+# Likelihood
+sigma = pm.HalfNormal('sigma', sigma=1)
+y_obs = pm.Normal('y_obs', mu=mu, sigma=sigma, observed=data['Close_Price'])
 with model_panel:
  trace_panel = pm.sample(1000, tune=1000)
 import arviz as az
